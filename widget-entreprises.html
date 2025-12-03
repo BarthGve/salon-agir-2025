@@ -1019,7 +1019,7 @@
                 }));
             }
 
-            const clientsData = await fetchGristTable('Table6');
+            const clientsData = await fetchGristTable('Clients');
             if (clientsData.length > 0) {
                 clients = clientsData.map(r => ({
                     entreprise: r.Entreprise,
@@ -1245,7 +1245,7 @@
         function displayCompany(company) {
             const container = document.getElementById('companyContent');
 
-            const companyClients = clients.filter(c => c.entreprise === company.id);
+            const companyClients = clients.filter(c => parseInt(c.entreprise) === company.id || c.entreprise === company.id);
             const companySolutions = solutions.filter(s => s.entreprise === company.id);
             const companyInvestors = investisseurs.filter(i => i.entreprise === company.id);
             const companyExpertises = expertises.filter(e => e.entreprise === company.id);
