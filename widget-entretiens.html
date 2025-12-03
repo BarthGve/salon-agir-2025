@@ -784,10 +784,10 @@
                     type: r.TypeIA || ''
                 }));
 
-                // Clients (Table2)
-                const clientsData = await fetchGristTable('Table2');
+                // Clients
+                const clientsData = await fetchGristTable('Clients');
                 clients = clientsData.map(r => ({
-                    entreprise: r.Entreprise,
+                    entreprise: parseInt(r.Entreprise) || r.Entreprise,
                     nom: r.NomClient || '',
                     projet: r.TypeProjet || ''
                 }));
@@ -929,8 +929,8 @@
                 solutionsList.innerHTML = '<p class="fr-text--muted">Aucune solution referencee</p>';
             }
 
-            // Clients
-            const companyClients = clients.filter(c => c.entreprise === company.id);
+            // Clients (gerer string ou number pour entreprise)
+            const companyClients = clients.filter(c => parseInt(c.entreprise) === company.id || c.entreprise === company.id);
             const clientsList = document.getElementById('clientsList');
 
             if (companyClients.length > 0) {
@@ -1086,10 +1086,14 @@
                 // Ecouter les selections dans Grist
                 grist.onRecord(function(record) {
                     console.log('Record selectionne:', record);
-                    if (record) {
-                        // Mettre a jour le selecteur
-                        document.getElementById('entretienSelect').value = record.id;
-                        displayEntretien(record);
+                    if (record && record.id) {
+                        // Chercher l'entretien dans notre tableau mappe
+                        const entretien = entretiens.find(e => e.id === record.id);
+                        if (entretien) {
+                            // Mettre a jour le selecteur
+                            document.getElementById('entretienSelect').value = record.id;
+                            displayEntretien(entretien);
+                        }
                     }
                 });
             } else {
@@ -1212,8 +1216,15 @@
                     console.log('Sauvegarde REST reussie');
                 }
 
-                // Mettre a jour l'entretien local
-                currentEntretien[currentEditField] = textContent ? htmlContent : '';
+                // Mettre a jour l'entretien local et dans le tableau
+                const newValue = textContent ? htmlContent : '';
+                currentEntretien[currentEditField] = newValue;
+
+                // Mettre aussi a jour dans le tableau entretiens
+                const entretienIndex = entretiens.findIndex(e => e.id === currentEntretien.id);
+                if (entretienIndex !== -1) {
+                    entretiens[entretienIndex][currentEditField] = newValue;
+                }
 
                 // Fermer le modal
                 closeEditor();
