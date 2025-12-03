@@ -275,7 +275,6 @@
                 <div class="header-entretien">
                     <div class="meta-info">
                         <p class="fr-badge fr-badge--blue-ecume" id="badgeDate"></p>
-                        <p class="fr-badge fr-badge--green-emeraude" id="badgeEntreprise"></p>
                     </div>
                     <h1 class="fr-h3" id="titreEntretien">Entretien</h1>
                 </div>
@@ -692,7 +691,6 @@
 
             // En-tete
             document.getElementById('badgeDate').textContent = formatDate(record.Date);
-            document.getElementById('badgeEntreprise').textContent = entrepriseNom;
             document.getElementById('titreEntretien').textContent = 'Entretien avec ' + entrepriseNom;
 
             // Participants (resolus depuis RefList)
