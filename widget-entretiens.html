@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-scheme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comptes Rendus Entretiens - Salon Agir 2025</title>
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.12.1/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.12.1/dist/utility/icons/icons.min.css">
+    <style>
+        body {
+            padding: 1.5rem;
+            background-color: var(--background-default-grey);
+        }
+        .widget-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header-entretien {
+            margin-bottom: 1.5rem;
+        }
+        .meta-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .empty-state .fr-icon-file-text-line {
+            font-size: 3rem;
+            color: var(--text-mention-grey);
+            margin-bottom: 1rem;
+        }
+        .section-content {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        .fr-tabs__panel {
+            padding-top: 1.5rem;
+        }
+        .company-card {
+            display: grid;
+            gap: 1rem;
+        }
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .company-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--raised-shadow);
+            overflow: hidden;
+        }
+        .company-logo img {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: contain;
+        }
+        .company-logo .initials {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-mention-grey);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .stat-item {
+            background: var(--background-alt-grey);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-title-grey);
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-mention-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .solutions-list, .clients-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+        .solution-item, .client-item {
+            background: var(--background-alt-grey);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .solution-name, .client-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .solution-desc, .client-project {
+            font-size: 0.875rem;
+            color: var(--text-mention-grey);
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <!-- Etat vide par defaut -->
+        <div id="emptyState" class="empty-state">
+            <span class="fr-icon-file-text-line" aria-hidden="true"></span>
+            <h3 class="fr-h4">Selectionnez un entretien</h3>
+            <p class="fr-text--sm fr-text--muted">Cliquez sur une ligne dans la table Entretiens pour afficher le compte rendu</p>
+        </div>
+
+        <!-- Contenu principal -->
+        <div id="mainContent" style="display: none;">
+            <!-- En-tete -->
+            <div class="header-entretien">
+                <div class="meta-info">
+                    <p class="fr-badge fr-badge--blue-ecume" id="badgeDate"></p>
+                    <p class="fr-badge fr-badge--green-emeraude" id="badgeEntreprise"></p>
+                </div>
+                <h1 class="fr-h3" id="titreEntretien">Entretien</h1>
+            </div>
+
+            <!-- Systeme d'onglets DSFR -->
+            <div class="fr-tabs">
+                <ul class="fr-tabs__list" role="tablist" aria-label="Onglets entretien">
+                    <li role="presentation">
+                        <button id="tabpanel-cr" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-cr-panel">
+                            Compte rendu
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button id="tabpanel-entreprise" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-entreprise-panel">
+                            Fiche entreprise
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Panel Compte Rendu -->
+                <div id="tabpanel-cr-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-cr" tabindex="0">
+
+                    <!-- Participants -->
+                    <div class="fr-callout fr-callout--brown-caramel fr-mb-3w">
+                        <h4 class="fr-callout__title">Participants</h4>
+                        <p class="fr-callout__text">
+                            <strong>Notre equipe :</strong> <span id="participantsEquipe">-</span><br>
+                            <strong>Interlocuteurs :</strong> <span id="participantsEntreprise">-</span>
+                        </p>
+                    </div>
+
+                    <!-- Accordeons pour les sections -->
+                    <div class="fr-accordions-group">
+                        <!-- Contexte -->
+                        <section class="fr-accordion">
+                            <h3 class="fr-accordion__title">
+                                <button class="fr-accordion__btn" aria-expanded="true" aria-controls="accordion-contexte">
+                                    Contexte de l'entretien
+                                </button>
+                            </h3>
+                            <div class="fr-collapse" id="accordion-contexte">
+                                <p id="contexteContent" class="section-content">-</p>
+                            </div>
+                        </section>
+
+                        <!-- Solutions proposees -->
+                        <section class="fr-accordion">
+                            <h3 class="fr-accordion__title">
+                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-solutions">
+                                    Solutions proposees
+                                </button>
+                            </h3>
+                            <div class="fr-collapse" id="accordion-solutions">
+                                <p id="solutionsContent" class="section-content">-</p>
+                            </div>
+                        </section>
+
+                        <!-- Cas d'usage -->
+                        <section class="fr-accordion">
+                            <h3 class="fr-accordion__title">
+                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-usages">
+                                    Cas d'usage discutes
+                                </button>
+                            </h3>
+                            <div class="fr-collapse" id="accordion-usages">
+                                <p id="usagesContent" class="section-content">-</p>
+                            </div>
+                        </section>
+
+                        <!-- Points cles -->
+                        <section class="fr-accordion">
+                            <h3 class="fr-accordion__title">
+                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-points">
+                                    Points cles
+                                </button>
+                            </h3>
+                            <div class="fr-collapse" id="accordion-points">
+                                <p id="pointsClesContent" class="section-content">-</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Prochaines etapes -->
+                    <div class="fr-alert fr-alert--info fr-mt-3w">
+                        <h4 class="fr-alert__title">Prochaines etapes</h4>
+                        <p id="prochainesEtapesContent" class="section-content">-</p>
+                    </div>
+                </div>
+
+                <!-- Panel Fiche Entreprise -->
+                <div id="tabpanel-entreprise-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-entreprise" tabindex="0">
+                    <div class="company-card">
+                        <!-- Header entreprise -->
+                        <div class="company-header">
+                            <div class="company-logo" id="companyLogo">
+                                <span class="initials" id="companyInitials">?</span>
+                            </div>
+                            <div>
+                                <h2 class="fr-h4 fr-mb-0" id="companyName">-</h2>
+                                <p class="fr-badge fr-badge--sm fr-badge--blue-ecume" id="companySector">-</p>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <p id="companyDescription" class="fr-text">-</p>
+
+                        <!-- Liens -->
+                        <div class="fr-btns-group fr-btns-group--inline">
+                            <a id="companyWebsite" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-global-line" href="#" target="_blank" style="display:none;">
+                                Site web
+                            </a>
+                            <a id="companyLinkedIn" class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-linkedin-box-fill" href="#" target="_blank" style="display:none;">
+                                LinkedIn
+                            </a>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="stats-grid" id="statsGrid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="statCreation">-</div>
+                                <div class="stat-label">Creation</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="statEffectifs">-</div>
+                                <div class="stat-label">Effectifs</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="statSiege">-</div>
+                                <div class="stat-label">Siege</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="statCA">-</div>
+                                <div class="stat-label">CA</div>
+                            </div>
+                        </div>
+
+                        <!-- Solutions de l'entreprise -->
+                        <h3 class="fr-h5">Solutions</h3>
+                        <div class="solutions-list" id="solutionsList">
+                            <p class="fr-text--muted">Aucune solution referencee</p>
+                        </div>
+
+                        <!-- Clients references -->
+                        <h3 class="fr-h5 fr-mt-3w">Clients references</h3>
+                        <div class="clients-list" id="clientsList">
+                            <p class="fr-text--muted">Aucun client reference</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grist Plugin API -->
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+    <!-- DSFR JS -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.12.1/dist/dsfr.module.min.js"></script>
+
+    <script>
+        // Donnees
+        let entreprises = [];
+        let solutions = [];
+        let clients = [];
+        let currentEntretien = null;
+        let currentEntreprise = null;
+
+        // Config Grist
+        const GRIST_BASE_URL = 'https://grist.numerique.gouv.fr';
+        const GRIST_DOC_ID = 'qZyF674ZEUb3';
+
+        // Formater une date Unix timestamp
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        // Obtenir les initiales
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        // Charger une table via l'API Widget Grist
+        async function fetchGristTable(tableName) {
+            try {
+                const data = await grist.docApi.fetchTable(tableName);
+                if (!data || !data.id) return [];
+                const records = [];
+                const numRecords = data.id.length;
+                const columns = Object.keys(data);
+                for (let i = 0; i < numRecords; i++) {
+                    const record = { id: data.id[i] };
+                    columns.forEach(col => {
+                        if (col !== 'id') {
+                            record[col] = data[col][i];
+                        }
+                    });
+                    records.push(record);
+                }
+                return records;
+            } catch (e) {
+                console.error('Erreur chargement table ' + tableName + ':', e);
+                return [];
+            }
+        }
+
+        // Charger toutes les donnees
+        async function loadAllData() {
+            try {
+                // Entreprises
+                const entreprisesData = await fetchGristTable('Entreprises');
+                entreprises = entreprisesData.map(r => ({
+                    id: r.id,
+                    nom: r.nom || '',
+                    description: r.Description || '',
+                    siteWeb: r.SiteWeb || '',
+                    logoURL: r.LogoURL || '',
+                    dateCreation: r.DateCreation || '',
+                    effectifs: r.Effectifs || '',
+                    siege: r.Siege || '',
+                    secteur: r.Secteur || '',
+                    ca: r.CA || '',
+                    linkedInURL: r.LinkedInURL || ''
+                }));
+
+                // Solutions (Table1)
+                const solutionsData = await fetchGristTable('Table1');
+                solutions = solutionsData.map(r => ({
+                    entreprise: r.Entreprise,
+                    nom: r.NomSolution || '',
+                    description: r.Description || '',
+                    type: r.TypeIA || ''
+                }));
+
+                // Clients (Table2)
+                const clientsData = await fetchGristTable('Table2');
+                clients = clientsData.map(r => ({
+                    entreprise: r.Entreprise,
+                    nom: r.NomClient || '',
+                    projet: r.TypeProjet || ''
+                }));
+
+                console.log('Donnees chargees:', entreprises.length, 'entreprises,', solutions.length, 'solutions,', clients.length, 'clients');
+            } catch (e) {
+                console.error('Erreur chargement donnees:', e);
+            }
+        }
+
+        // Afficher un entretien
+        function displayEntretien(record) {
+            if (!record) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'none';
+                return;
+            }
+
+            currentEntretien = record;
+
+            // Trouver l'entreprise liee
+            const entrepriseId = record.Entreprise;
+            currentEntreprise = entreprises.find(e => e.id === entrepriseId);
+            const entrepriseNom = currentEntreprise ? currentEntreprise.nom : 'Entreprise inconnue';
+
+            // Afficher le contenu principal
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            // En-tete
+            document.getElementById('badgeDate').textContent = formatDate(record.Date);
+            document.getElementById('badgeEntreprise').textContent = entrepriseNom;
+            document.getElementById('titreEntretien').textContent = 'Entretien avec ' + entrepriseNom;
+
+            // Participants
+            document.getElementById('participantsEquipe').textContent = record.Participants_Equipe || 'Non renseigne';
+            document.getElementById('participantsEntreprise').textContent = record.Participants_Entreprise || 'Non renseigne';
+
+            // Sections
+            document.getElementById('contexteContent').textContent = record.Contexte || '-';
+            document.getElementById('solutionsContent').textContent = record.Solutions_Proposees || '-';
+            document.getElementById('usagesContent').textContent = record.Cas_Usage_Discutes || '-';
+            document.getElementById('pointsClesContent').textContent = record.Points_Cles || '-';
+            document.getElementById('prochainesEtapesContent').textContent = record.Prochaines_Etapes || '-';
+
+            // Mettre a jour la fiche entreprise
+            if (currentEntreprise) {
+                displayEntreprise(currentEntreprise);
+            }
+        }
+
+        // Afficher la fiche entreprise
+        function displayEntreprise(company) {
+            if (!company) return;
+
+            // Nom et secteur
+            document.getElementById('companyName').textContent = company.nom;
+            document.getElementById('companySector').textContent = company.secteur || 'Non categorise';
+            document.getElementById('companyDescription').textContent = company.description || 'Aucune description disponible.';
+
+            // Logo
+            const logoContainer = document.getElementById('companyLogo');
+            const initials = document.getElementById('companyInitials');
+            if (company.logoURL && !company.logoURL.includes('favicon')) {
+                logoContainer.innerHTML = '<img src="' + company.logoURL + '" alt="' + company.nom + '" onerror="this.parentElement.innerHTML=\'<span class=initials>' + getInitials(company.nom) + '</span>\'">';
+            } else {
+                initials.textContent = getInitials(company.nom);
+            }
+
+            // Liens
+            const websiteBtn = document.getElementById('companyWebsite');
+            const linkedinBtn = document.getElementById('companyLinkedIn');
+
+            if (company.siteWeb) {
+                websiteBtn.href = company.siteWeb;
+                websiteBtn.style.display = 'inline-flex';
+            } else {
+                websiteBtn.style.display = 'none';
+            }
+
+            if (company.linkedInURL) {
+                linkedinBtn.href = company.linkedInURL;
+                linkedinBtn.style.display = 'inline-flex';
+            } else {
+                linkedinBtn.style.display = 'none';
+            }
+
+            // Stats
+            document.getElementById('statCreation').textContent = company.dateCreation || '-';
+            document.getElementById('statEffectifs').textContent = company.effectifs || '-';
+            document.getElementById('statSiege').textContent = company.siege || '-';
+            document.getElementById('statCA').textContent = company.ca || '-';
+
+            // Solutions de l'entreprise
+            const companySolutions = solutions.filter(s => s.entreprise === company.id);
+            const solutionsList = document.getElementById('solutionsList');
+
+            if (companySolutions.length > 0) {
+                solutionsList.innerHTML = companySolutions.map(s => `
+                    <div class="solution-item">
+                        <div class="solution-name">${s.nom}</div>
+                        <div class="solution-desc">${s.description}</div>
+                        ${s.type ? '<span class="fr-badge fr-badge--sm fr-badge--blue-cumulus">' + s.type + '</span>' : ''}
+                    </div>
+                `).join('');
+            } else {
+                solutionsList.innerHTML = '<p class="fr-text--muted">Aucune solution referencee</p>';
+            }
+
+            // Clients
+            const companyClients = clients.filter(c => c.entreprise === company.id);
+            const clientsList = document.getElementById('clientsList');
+
+            if (companyClients.length > 0) {
+                clientsList.innerHTML = companyClients.map(c => `
+                    <div class="client-item">
+                        <div class="client-name">${c.nom}</div>
+                        <div class="client-project">${c.projet}</div>
+                    </div>
+                `).join('');
+            } else {
+                clientsList.innerHTML = '<p class="fr-text--muted">Aucun client reference</p>';
+            }
+        }
+
+        // Initialisation Grist
+        async function initGrist() {
+            grist.ready({ requiredAccess: 'read table' });
+
+            // Charger les donnees de reference
+            await loadAllData();
+
+            // Ecouter les selections dans Grist
+            grist.onRecord(function(record) {
+                console.log('Record selectionne:', record);
+                if (record) {
+                    displayEntretien(record);
+                }
+            });
+        }
+
+        // Demarrer
+        document.addEventListener('DOMContentLoaded', initGrist);
+    </script>
+</body>
+</html>
