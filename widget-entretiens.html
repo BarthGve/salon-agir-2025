@@ -8,13 +8,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.12.1/dist/dsfr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.12.1/dist/utility/icons/icons.min.css">
     <style>
-        body {
-            padding: 1.5rem;
-            background-color: var(--background-default-grey);
-        }
         .widget-container {
             max-width: 900px;
             margin: 0 auto;
+            padding: 0 1rem;
+        }
+        .selector-section {
+            margin: 2rem 0;
         }
         .header-entretien {
             margin-bottom: 1.5rem;
@@ -28,11 +28,8 @@
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-        }
-        .empty-state .fr-icon-file-text-line {
-            font-size: 3rem;
-            color: var(--text-mention-grey);
-            margin-bottom: 1rem;
+            background: var(--background-alt-grey);
+            border-radius: 8px;
         }
         .section-content {
             white-space: pre-line;
@@ -59,7 +56,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--raised-shadow);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         .company-logo img {
@@ -74,7 +71,7 @@
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 1rem;
             margin: 1.5rem 0;
         }
@@ -85,7 +82,7 @@
             text-align: center;
         }
         .stat-value {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-title-grey);
         }
@@ -115,173 +112,231 @@
     </style>
 </head>
 <body>
-    <div class="widget-container">
-        <!-- Etat vide par defaut -->
-        <div id="emptyState" class="empty-state">
-            <span class="fr-icon-file-text-line" aria-hidden="true"></span>
-            <h3 class="fr-h4">Selectionnez un entretien</h3>
-            <p class="fr-text--sm fr-text--muted">Cliquez sur une ligne dans la table Entretiens pour afficher le compte rendu</p>
-        </div>
-
-        <!-- Contenu principal -->
-        <div id="mainContent" style="display: none;">
-            <!-- En-tete -->
-            <div class="header-entretien">
-                <div class="meta-info">
-                    <p class="fr-badge fr-badge--blue-ecume" id="badgeDate"></p>
-                    <p class="fr-badge fr-badge--green-emeraude" id="badgeEntreprise"></p>
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    Republique
+                                    <br>Francaise
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="#" title="Accueil">
+                                <p class="fr-header__service-title">Salon Agir 2025</p>
+                            </a>
+                            <p class="fr-header__service-tagline">Comptes rendus d'entretiens</p>
+                        </div>
+                    </div>
                 </div>
-                <h1 class="fr-h3" id="titreEntretien">Entretien</h1>
+            </div>
+        </div>
+    </header>
+
+    <main role="main" class="fr-py-4w">
+        <div class="widget-container">
+
+            <!-- Selecteur d'entretien -->
+            <div class="selector-section">
+                <div class="fr-select-group">
+                    <label class="fr-label" for="entretienSelect">
+                        Choisir un entretien
+                        <span class="fr-hint-text">Selectionnez un entretien pour afficher le compte rendu</span>
+                    </label>
+                    <select class="fr-select" id="entretienSelect">
+                        <option value="" selected disabled>Selectionnez un entretien...</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Systeme d'onglets DSFR -->
-            <div class="fr-tabs">
-                <ul class="fr-tabs__list" role="tablist" aria-label="Onglets entretien">
-                    <li role="presentation">
-                        <button id="tabpanel-cr" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-cr-panel">
-                            Compte rendu
-                        </button>
-                    </li>
-                    <li role="presentation">
-                        <button id="tabpanel-entreprise" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-entreprise-panel">
-                            Fiche entreprise
-                        </button>
+            <!-- Etat vide par defaut -->
+            <div id="emptyState" class="empty-state">
+                <span class="fr-icon-file-text-line fr-icon--lg" aria-hidden="true"></span>
+                <h3 class="fr-h4 fr-mt-2w">Aucun entretien selectionne</h3>
+                <p class="fr-text--sm fr-text--muted">Utilisez le selecteur ci-dessus pour afficher un compte rendu</p>
+            </div>
+
+            <!-- Contenu principal -->
+            <div id="mainContent" style="display: none;">
+                <!-- En-tete -->
+                <div class="header-entretien">
+                    <div class="meta-info">
+                        <p class="fr-badge fr-badge--blue-ecume" id="badgeDate"></p>
+                        <p class="fr-badge fr-badge--green-emeraude" id="badgeEntreprise"></p>
+                    </div>
+                    <h1 class="fr-h3" id="titreEntretien">Entretien</h1>
+                </div>
+
+                <!-- Systeme d'onglets DSFR -->
+                <div class="fr-tabs">
+                    <ul class="fr-tabs__list" role="tablist" aria-label="Onglets entretien">
+                        <li role="presentation">
+                            <button id="tabpanel-cr" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-cr-panel">
+                                Compte rendu
+                            </button>
+                        </li>
+                        <li role="presentation">
+                            <button id="tabpanel-entreprise" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-entreprise-panel">
+                                Fiche entreprise
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Panel Compte Rendu -->
+                    <div id="tabpanel-cr-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-cr" tabindex="0">
+
+                        <!-- Participants -->
+                        <div class="fr-callout fr-callout--brown-caramel fr-mb-3w">
+                            <h4 class="fr-callout__title">Participants</h4>
+                            <p class="fr-callout__text">
+                                <strong>Notre equipe :</strong> <span id="participantsEquipe">-</span><br>
+                                <strong>Interlocuteurs :</strong> <span id="participantsEntreprise">-</span>
+                            </p>
+                        </div>
+
+                        <!-- Accordeons pour les sections -->
+                        <div class="fr-accordions-group">
+                            <!-- Contexte -->
+                            <section class="fr-accordion">
+                                <h3 class="fr-accordion__title">
+                                    <button class="fr-accordion__btn" aria-expanded="true" aria-controls="accordion-contexte">
+                                        Contexte de l'entretien
+                                    </button>
+                                </h3>
+                                <div class="fr-collapse" id="accordion-contexte">
+                                    <p id="contexteContent" class="section-content">-</p>
+                                </div>
+                            </section>
+
+                            <!-- Solutions proposees -->
+                            <section class="fr-accordion">
+                                <h3 class="fr-accordion__title">
+                                    <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-solutions">
+                                        Solutions proposees
+                                    </button>
+                                </h3>
+                                <div class="fr-collapse" id="accordion-solutions">
+                                    <p id="solutionsContent" class="section-content">-</p>
+                                </div>
+                            </section>
+
+                            <!-- Cas d'usage -->
+                            <section class="fr-accordion">
+                                <h3 class="fr-accordion__title">
+                                    <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-usages">
+                                        Cas d'usage discutes
+                                    </button>
+                                </h3>
+                                <div class="fr-collapse" id="accordion-usages">
+                                    <p id="usagesContent" class="section-content">-</p>
+                                </div>
+                            </section>
+
+                            <!-- Points cles -->
+                            <section class="fr-accordion">
+                                <h3 class="fr-accordion__title">
+                                    <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-points">
+                                        Points cles
+                                    </button>
+                                </h3>
+                                <div class="fr-collapse" id="accordion-points">
+                                    <p id="pointsClesContent" class="section-content">-</p>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Prochaines etapes -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <h4 class="fr-alert__title">Prochaines etapes</h4>
+                            <p id="prochainesEtapesContent" class="section-content">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Panel Fiche Entreprise -->
+                    <div id="tabpanel-entreprise-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-entreprise" tabindex="0">
+                        <div class="company-card">
+                            <!-- Header entreprise -->
+                            <div class="company-header">
+                                <div class="company-logo" id="companyLogo">
+                                    <span class="initials" id="companyInitials">?</span>
+                                </div>
+                                <div>
+                                    <h2 class="fr-h4 fr-mb-0" id="companyName">-</h2>
+                                    <p class="fr-badge fr-badge--sm fr-badge--blue-ecume" id="companySector">-</p>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <p id="companyDescription" class="fr-text">-</p>
+
+                            <!-- Liens -->
+                            <div class="fr-btns-group fr-btns-group--inline">
+                                <a id="companyWebsite" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-global-line" href="#" target="_blank" style="display:none;">
+                                    Site web
+                                </a>
+                                <a id="companyLinkedIn" class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-linkedin-box-fill" href="#" target="_blank" style="display:none;">
+                                    LinkedIn
+                                </a>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="stats-grid" id="statsGrid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="statCreation">-</div>
+                                    <div class="stat-label">Creation</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="statEffectifs">-</div>
+                                    <div class="stat-label">Effectifs</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="statSiege">-</div>
+                                    <div class="stat-label">Siege</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="statCA">-</div>
+                                    <div class="stat-label">CA</div>
+                                </div>
+                            </div>
+
+                            <!-- Solutions de l'entreprise -->
+                            <h3 class="fr-h5">Solutions</h3>
+                            <div class="solutions-list" id="solutionsList">
+                                <p class="fr-text--muted">Aucune solution referencee</p>
+                            </div>
+
+                            <!-- Clients references -->
+                            <h3 class="fr-h5 fr-mt-3w">Clients references</h3>
+                            <div class="clients-list" id="clientsList">
+                                <p class="fr-text--muted">Aucun client reference</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="footer">
+        <div class="fr-container">
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <span class="fr-footer__bottom-link">Salon Agir 2025 - Montrouge</span>
                     </li>
                 </ul>
-
-                <!-- Panel Compte Rendu -->
-                <div id="tabpanel-cr-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-cr" tabindex="0">
-
-                    <!-- Participants -->
-                    <div class="fr-callout fr-callout--brown-caramel fr-mb-3w">
-                        <h4 class="fr-callout__title">Participants</h4>
-                        <p class="fr-callout__text">
-                            <strong>Notre equipe :</strong> <span id="participantsEquipe">-</span><br>
-                            <strong>Interlocuteurs :</strong> <span id="participantsEntreprise">-</span>
-                        </p>
-                    </div>
-
-                    <!-- Accordeons pour les sections -->
-                    <div class="fr-accordions-group">
-                        <!-- Contexte -->
-                        <section class="fr-accordion">
-                            <h3 class="fr-accordion__title">
-                                <button class="fr-accordion__btn" aria-expanded="true" aria-controls="accordion-contexte">
-                                    Contexte de l'entretien
-                                </button>
-                            </h3>
-                            <div class="fr-collapse" id="accordion-contexte">
-                                <p id="contexteContent" class="section-content">-</p>
-                            </div>
-                        </section>
-
-                        <!-- Solutions proposees -->
-                        <section class="fr-accordion">
-                            <h3 class="fr-accordion__title">
-                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-solutions">
-                                    Solutions proposees
-                                </button>
-                            </h3>
-                            <div class="fr-collapse" id="accordion-solutions">
-                                <p id="solutionsContent" class="section-content">-</p>
-                            </div>
-                        </section>
-
-                        <!-- Cas d'usage -->
-                        <section class="fr-accordion">
-                            <h3 class="fr-accordion__title">
-                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-usages">
-                                    Cas d'usage discutes
-                                </button>
-                            </h3>
-                            <div class="fr-collapse" id="accordion-usages">
-                                <p id="usagesContent" class="section-content">-</p>
-                            </div>
-                        </section>
-
-                        <!-- Points cles -->
-                        <section class="fr-accordion">
-                            <h3 class="fr-accordion__title">
-                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-points">
-                                    Points cles
-                                </button>
-                            </h3>
-                            <div class="fr-collapse" id="accordion-points">
-                                <p id="pointsClesContent" class="section-content">-</p>
-                            </div>
-                        </section>
-                    </div>
-
-                    <!-- Prochaines etapes -->
-                    <div class="fr-alert fr-alert--info fr-mt-3w">
-                        <h4 class="fr-alert__title">Prochaines etapes</h4>
-                        <p id="prochainesEtapesContent" class="section-content">-</p>
-                    </div>
-                </div>
-
-                <!-- Panel Fiche Entreprise -->
-                <div id="tabpanel-entreprise-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-entreprise" tabindex="0">
-                    <div class="company-card">
-                        <!-- Header entreprise -->
-                        <div class="company-header">
-                            <div class="company-logo" id="companyLogo">
-                                <span class="initials" id="companyInitials">?</span>
-                            </div>
-                            <div>
-                                <h2 class="fr-h4 fr-mb-0" id="companyName">-</h2>
-                                <p class="fr-badge fr-badge--sm fr-badge--blue-ecume" id="companySector">-</p>
-                            </div>
-                        </div>
-
-                        <!-- Description -->
-                        <p id="companyDescription" class="fr-text">-</p>
-
-                        <!-- Liens -->
-                        <div class="fr-btns-group fr-btns-group--inline">
-                            <a id="companyWebsite" class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-global-line" href="#" target="_blank" style="display:none;">
-                                Site web
-                            </a>
-                            <a id="companyLinkedIn" class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-linkedin-box-fill" href="#" target="_blank" style="display:none;">
-                                LinkedIn
-                            </a>
-                        </div>
-
-                        <!-- Stats -->
-                        <div class="stats-grid" id="statsGrid">
-                            <div class="stat-item">
-                                <div class="stat-value" id="statCreation">-</div>
-                                <div class="stat-label">Creation</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="statEffectifs">-</div>
-                                <div class="stat-label">Effectifs</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="statSiege">-</div>
-                                <div class="stat-label">Siege</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="statCA">-</div>
-                                <div class="stat-label">CA</div>
-                            </div>
-                        </div>
-
-                        <!-- Solutions de l'entreprise -->
-                        <h3 class="fr-h5">Solutions</h3>
-                        <div class="solutions-list" id="solutionsList">
-                            <p class="fr-text--muted">Aucune solution referencee</p>
-                        </div>
-
-                        <!-- Clients references -->
-                        <h3 class="fr-h5 fr-mt-3w">Clients references</h3>
-                        <div class="clients-list" id="clientsList">
-                            <p class="fr-text--muted">Aucun client reference</p>
-                        </div>
-                    </div>
+                <div class="fr-footer__bottom-copy">
+                    <p>Widget Grist - Comptes rendus d'entretiens</p>
                 </div>
             </div>
         </div>
-    </div>
+    </footer>
 
     <!-- Grist Plugin API -->
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
@@ -290,12 +345,14 @@
 
     <script>
         // Donnees
+        let entretiens = [];
         let entreprises = [];
         let participants = [];
         let solutions = [];
         let clients = [];
         let currentEntretien = null;
         let currentEntreprise = null;
+        let isGristMode = false;
 
         // Config Grist
         const GRIST_BASE_URL = 'https://grist.numerique.gouv.fr';
@@ -344,8 +401,26 @@
             return names.length > 0 ? names.join(', ') : 'Non renseigne';
         }
 
-        // Charger une table via l'API Widget Grist
-        async function fetchGristTable(tableName) {
+        // Charger une table via l'API REST Grist (mode standalone)
+        async function fetchGristTableREST(tableName) {
+            try {
+                const url = `${GRIST_BASE_URL}/api/docs/${GRIST_DOC_ID}/tables/${tableName}/records`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error(`Erreur API Grist pour ${tableName}: ${response.status}`);
+                    return [];
+                }
+                const data = await response.json();
+                if (!data.records) return [];
+                return data.records.map(r => ({ id: r.id, ...r.fields }));
+            } catch (e) {
+                console.error('Erreur chargement table ' + tableName + ':', e);
+                return [];
+            }
+        }
+
+        // Charger une table via l'API Widget Grist (mode integre)
+        async function fetchGristTableWidget(tableName) {
             try {
                 const data = await grist.docApi.fetchTable(tableName);
                 if (!data || !data.id) return [];
@@ -365,6 +440,15 @@
             } catch (e) {
                 console.error('Erreur chargement table ' + tableName + ':', e);
                 return [];
+            }
+        }
+
+        // Charger une table (detecte automatiquement le mode)
+        async function fetchGristTable(tableName) {
+            if (isGristMode) {
+                return await fetchGristTableWidget(tableName);
+            } else {
+                return await fetchGristTableREST(tableName);
             }
         }
 
@@ -400,6 +484,21 @@
                     telephone: r.Telephone || ''
                 }));
 
+                // Entretiens
+                const entretiensData = await fetchGristTable('Entretiens');
+                entretiens = entretiensData.map(r => ({
+                    id: r.id,
+                    Date: r.Date,
+                    Entreprise: r.Entreprise,
+                    Participants_Equipe: r.Participants_Equipe,
+                    Participants_Entreprise: r.Participants_Entreprise,
+                    Contexte: r.Contexte || '',
+                    Solutions_Proposees: r.Solutions_Proposees || '',
+                    Cas_Usage_Discutes: r.Cas_Usage_Discutes || '',
+                    Points_Cles: r.Points_Cles || '',
+                    Prochaines_Etapes: r.Prochaines_Etapes || ''
+                }));
+
                 // Solutions (Table1)
                 const solutionsData = await fetchGristTable('Table1');
                 solutions = solutionsData.map(r => ({
@@ -417,10 +516,31 @@
                     projet: r.TypeProjet || ''
                 }));
 
-                console.log('Donnees chargees:', entreprises.length, 'entreprises,', participants.length, 'participants,', solutions.length, 'solutions,', clients.length, 'clients');
+                console.log('Donnees chargees:', entreprises.length, 'entreprises,', participants.length, 'participants,', entretiens.length, 'entretiens');
+
+                // Remplir le selecteur
+                populateSelect();
+
             } catch (e) {
                 console.error('Erreur chargement donnees:', e);
             }
+        }
+
+        // Remplir le selecteur d'entretiens
+        function populateSelect() {
+            const select = document.getElementById('entretienSelect');
+            select.innerHTML = '<option value="" selected disabled>Selectionnez un entretien...</option>';
+
+            entretiens.forEach(e => {
+                const entreprise = entreprises.find(ent => ent.id === e.Entreprise);
+                const entrepriseNom = entreprise ? entreprise.nom : 'Entreprise inconnue';
+                const dateStr = formatDate(e.Date);
+
+                const option = document.createElement('option');
+                option.value = e.id;
+                option.textContent = `${entrepriseNom} - ${dateStr}`;
+                select.appendChild(option);
+            });
         }
 
         // Afficher un entretien
@@ -475,11 +595,10 @@
 
             // Logo
             const logoContainer = document.getElementById('companyLogo');
-            const initials = document.getElementById('companyInitials');
             if (company.logoURL && !company.logoURL.includes('favicon')) {
                 logoContainer.innerHTML = '<img src="' + company.logoURL + '" alt="' + company.nom + '" onerror="this.parentElement.innerHTML=\'<span class=initials>' + getInitials(company.nom) + '</span>\'">';
             } else {
-                initials.textContent = getInitials(company.nom);
+                logoContainer.innerHTML = '<span class="initials">' + getInitials(company.nom) + '</span>';
             }
 
             // Liens
@@ -538,24 +657,51 @@
             }
         }
 
-        // Initialisation Grist
-        async function initGrist() {
-            grist.ready({ requiredAccess: 'read table' });
-
-            // Charger les donnees de reference
-            await loadAllData();
-
-            // Ecouter les selections dans Grist
-            grist.onRecord(function(record) {
-                console.log('Record selectionne:', record);
-                if (record) {
-                    displayEntretien(record);
+        // Event listener pour le selecteur
+        document.getElementById('entretienSelect').addEventListener('change', function() {
+            const id = parseInt(this.value);
+            if (id) {
+                const entretien = entretiens.find(e => e.id === id);
+                if (entretien) {
+                    displayEntretien(entretien);
                 }
-            });
+            }
+        });
+
+        // Initialisation
+        async function init() {
+            // Detecter si on est dans Grist
+            const isInGristIframe = window.self !== window.top && typeof grist !== 'undefined';
+
+            if (isInGristIframe) {
+                // Mode integre Grist
+                isGristMode = true;
+                console.log('Mode Grist Widget detecte');
+
+                grist.ready({ requiredAccess: 'read table' });
+
+                await loadAllData();
+
+                // Ecouter les selections dans Grist
+                grist.onRecord(function(record) {
+                    console.log('Record selectionne:', record);
+                    if (record) {
+                        // Mettre a jour le selecteur
+                        document.getElementById('entretienSelect').value = record.id;
+                        displayEntretien(record);
+                    }
+                });
+            } else {
+                // Mode standalone
+                isGristMode = false;
+                console.log('Mode standalone - chargement via API REST');
+
+                await loadAllData();
+            }
         }
 
         // Demarrer
-        document.addEventListener('DOMContentLoaded', initGrist);
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
