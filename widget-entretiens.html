@@ -109,6 +109,97 @@
             font-size: 0.875rem;
             color: var(--text-mention-grey);
         }
+        /* Cartes d'identite participants */
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .participant-card {
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .participant-card__header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--background-alt-blue-france);
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        .participant-card__photo {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .participant-card__photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .participant-card__photo .initials {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-action-high-blue-france);
+        }
+        .participant-card__identity {
+            flex: 1;
+            min-width: 0;
+        }
+        .participant-card__name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-title-grey);
+            margin: 0 0 0.25rem 0;
+        }
+        .participant-card__fonction {
+            font-size: 0.875rem;
+            color: var(--text-mention-grey);
+            margin: 0;
+        }
+        .participant-card__body {
+            padding: 1.25rem 1.5rem;
+        }
+        .participant-card__field {
+            margin-bottom: 0.75rem;
+        }
+        .participant-card__field:last-child {
+            margin-bottom: 0;
+        }
+        .participant-card__label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-mention-grey);
+            margin-bottom: 0.25rem;
+        }
+        .participant-card__value {
+            font-size: 0.875rem;
+            color: var(--text-default-grey);
+            line-height: 1.4;
+        }
+        .participant-card__footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-default-grey);
+            background: var(--background-alt-grey);
+        }
+        .no-participants {
+            text-align: center;
+            padding: 3rem;
+            background: var(--background-alt-grey);
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -124,6 +215,9 @@
                                     Republique
                                     <br>Francaise
                                 </p>
+                            </div>
+                            <div class="fr-header__operator">
+                                <img src="https://cdn.prod.website-files.com/633a90b21badd95ceee55695/633a9420a4808c1a0bbb23ed_Rencontres%20AGIR.png" class="fr-responsive-img" alt="Rencontres AGIR" style="max-height: 60px;">
                             </div>
                         </div>
                         <div class="fr-header__service">
@@ -183,6 +277,11 @@
                         <li role="presentation">
                             <button id="tabpanel-entreprise" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-entreprise-panel">
                                 Fiche entreprise
+                            </button>
+                        </li>
+                        <li role="presentation">
+                            <button id="tabpanel-participants" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-participants-panel">
+                                Participants
                             </button>
                         </li>
                     </ul>
@@ -251,9 +350,9 @@
                         </div>
 
                         <!-- Prochaines etapes -->
-                        <div class="fr-alert fr-alert--info fr-mt-3w">
-                            <h4 class="fr-alert__title">Prochaines etapes</h4>
-                            <p id="prochainesEtapesContent" class="section-content">-</p>
+                        <div class="fr-callout fr-callout--green-emeraude fr-mt-3w">
+                            <h4 class="fr-callout__title">Prochaines etapes</h4>
+                            <p id="prochainesEtapesContent" class="fr-callout__text section-content">-</p>
                         </div>
                     </div>
 
@@ -314,6 +413,17 @@
                             <h3 class="fr-h5 fr-mt-3w">Clients references</h3>
                             <div class="clients-list" id="clientsList">
                                 <p class="fr-text--muted">Aucun client reference</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Participants -->
+                    <div id="tabpanel-participants-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-participants" tabindex="0">
+                        <h2 class="fr-h4 fr-mb-3w">Interlocuteurs de l'entretien</h2>
+                        <div class="participants-grid" id="participantsGrid">
+                            <div class="no-participants">
+                                <span class="fr-icon-user-line fr-icon--lg" aria-hidden="true"></span>
+                                <p class="fr-mt-2w fr-text--muted">Aucun participant entreprise pour cet entretien</p>
                             </div>
                         </div>
                     </div>
@@ -481,7 +591,12 @@
                     entreprise: r.Entreprise,
                     fonction: r.Fonction || '',
                     email: r.Email || '',
-                    telephone: r.Telephone || ''
+                    telephone: r.Telephone || '',
+                    linkedin: r.LinkedIn || '',
+                    formation: r.Formation || '',
+                    parcours: r.Parcours || '',
+                    localisation: r.Localisation || '',
+                    photoURL: r.Photo_URL || ''
                 }));
 
                 // Entretiens
@@ -582,6 +697,9 @@
             if (currentEntreprise) {
                 displayEntreprise(currentEntreprise);
             }
+
+            // Mettre a jour les participants
+            displayParticipants(record);
         }
 
         // Afficher la fiche entreprise
@@ -655,6 +773,119 @@
             } else {
                 clientsList.innerHTML = '<p class="fr-text--muted">Aucun client reference</p>';
             }
+        }
+
+        // Afficher les participants entreprise de l'entretien
+        function displayParticipants(record) {
+            const grid = document.getElementById('participantsGrid');
+
+            // Recuperer les IDs des participants entreprise
+            const participantIds = extractRefListIds(record.Participants_Entreprise);
+
+            if (participantIds.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-participants">
+                        <span class="fr-icon-user-line fr-icon--lg" aria-hidden="true"></span>
+                        <p class="fr-mt-2w fr-text--muted">Aucun participant entreprise pour cet entretien</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Filtrer les participants de type Entreprise
+            const entrepriseParticipants = participantIds
+                .map(id => participants.find(p => p.id === id))
+                .filter(p => p && p.type === 'Entreprise');
+
+            if (entrepriseParticipants.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-participants">
+                        <span class="fr-icon-user-line fr-icon--lg" aria-hidden="true"></span>
+                        <p class="fr-mt-2w fr-text--muted">Aucun participant entreprise pour cet entretien</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Generer les cartes
+            grid.innerHTML = entrepriseParticipants.map(p => {
+                const fullName = [p.prenom, p.nom].filter(Boolean).join(' ') || 'Participant';
+                const initials = getInitials(fullName);
+                const company = entreprises.find(e => e.id === p.entreprise);
+                const companyName = company ? company.nom : '';
+
+                // Photo ou initiales
+                const photoHtml = p.photoURL
+                    ? `<img src="${p.photoURL}" alt="${fullName}" onerror="this.parentElement.innerHTML='<span class=initials>${initials}</span>'">`
+                    : `<span class="initials">${initials}</span>`;
+
+                // Construction des champs
+                let fieldsHtml = '';
+
+                if (companyName) {
+                    fieldsHtml += `
+                        <div class="participant-card__field">
+                            <div class="participant-card__label">Entreprise</div>
+                            <div class="participant-card__value">${companyName}</div>
+                        </div>
+                    `;
+                }
+
+                if (p.formation) {
+                    fieldsHtml += `
+                        <div class="participant-card__field">
+                            <div class="participant-card__label">Formation</div>
+                            <div class="participant-card__value">${p.formation}</div>
+                        </div>
+                    `;
+                }
+
+                if (p.parcours) {
+                    fieldsHtml += `
+                        <div class="participant-card__field">
+                            <div class="participant-card__label">Parcours</div>
+                            <div class="participant-card__value">${p.parcours}</div>
+                        </div>
+                    `;
+                }
+
+                if (p.localisation) {
+                    fieldsHtml += `
+                        <div class="participant-card__field">
+                            <div class="participant-card__label">Localisation</div>
+                            <div class="participant-card__value">${p.localisation}</div>
+                        </div>
+                    `;
+                }
+
+                // Footer avec LinkedIn
+                let footerHtml = '';
+                if (p.linkedin) {
+                    footerHtml = `
+                        <div class="participant-card__footer">
+                            <a href="${p.linkedin}" target="_blank" class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-linkedin-box-fill">
+                                Voir le profil LinkedIn
+                            </a>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="participant-card">
+                        <div class="participant-card__header">
+                            <div class="participant-card__photo">
+                                ${photoHtml}
+                            </div>
+                            <div class="participant-card__identity">
+                                <h3 class="participant-card__name">${fullName}</h3>
+                                ${p.fonction ? `<p class="participant-card__fonction">${p.fonction}</p>` : ''}
+                            </div>
+                        </div>
+                        ${fieldsHtml ? `<div class="participant-card__body">${fieldsHtml}</div>` : ''}
+                        ${footerHtml}
+                    </div>
+                `;
+            }).join('');
         }
 
         // Event listener pour le selecteur
