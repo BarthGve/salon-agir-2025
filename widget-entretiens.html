@@ -291,6 +291,7 @@
     <script>
         // Donnees
         let entreprises = [];
+        let participants = [];
         let solutions = [];
         let clients = [];
         let currentEntretien = null;
@@ -315,6 +316,32 @@
         function getInitials(name) {
             if (!name) return '?';
             return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        // Extraire les IDs d'une RefList Grist (format: ["L", id1, id2, ...])
+        function extractRefListIds(refList) {
+            if (!refList) return [];
+            if (Array.isArray(refList) && refList[0] === 'L') {
+                return refList.slice(1);
+            }
+            if (typeof refList === 'number') return [refList];
+            return [];
+        }
+
+        // Resoudre les noms des participants depuis leurs IDs
+        function resolveParticipantNames(refList, type) {
+            const ids = extractRefListIds(refList);
+            if (ids.length === 0) return 'Non renseigne';
+
+            const names = ids
+                .map(id => participants.find(p => p.id === id))
+                .filter(p => p && (!type || p.type === type))
+                .map(p => {
+                    const nom = [p.prenom, p.nom].filter(Boolean).join(' ');
+                    return p.fonction ? `${nom} (${p.fonction})` : nom;
+                });
+
+            return names.length > 0 ? names.join(', ') : 'Non renseigne';
         }
 
         // Charger une table via l'API Widget Grist
@@ -360,6 +387,19 @@
                     linkedInURL: r.LinkedInURL || ''
                 }));
 
+                // Participants
+                const participantsData = await fetchGristTable('Participants');
+                participants = participantsData.map(r => ({
+                    id: r.id,
+                    nom: r.Nom || '',
+                    prenom: r.Prenom || '',
+                    type: r.Type || '',
+                    entreprise: r.Entreprise,
+                    fonction: r.Fonction || '',
+                    email: r.Email || '',
+                    telephone: r.Telephone || ''
+                }));
+
                 // Solutions (Table1)
                 const solutionsData = await fetchGristTable('Table1');
                 solutions = solutionsData.map(r => ({
@@ -377,7 +417,7 @@
                     projet: r.TypeProjet || ''
                 }));
 
-                console.log('Donnees chargees:', entreprises.length, 'entreprises,', solutions.length, 'solutions,', clients.length, 'clients');
+                console.log('Donnees chargees:', entreprises.length, 'entreprises,', participants.length, 'participants,', solutions.length, 'solutions,', clients.length, 'clients');
             } catch (e) {
                 console.error('Erreur chargement donnees:', e);
             }
@@ -407,9 +447,9 @@
             document.getElementById('badgeEntreprise').textContent = entrepriseNom;
             document.getElementById('titreEntretien').textContent = 'Entretien avec ' + entrepriseNom;
 
-            // Participants
-            document.getElementById('participantsEquipe').textContent = record.Participants_Equipe || 'Non renseigne';
-            document.getElementById('participantsEntreprise').textContent = record.Participants_Entreprise || 'Non renseigne';
+            // Participants (resolus depuis RefList)
+            document.getElementById('participantsEquipe').textContent = resolveParticipantNames(record.Participants_Equipe, 'Equipe');
+            document.getElementById('participantsEntreprise').textContent = resolveParticipantNames(record.Participants_Entreprise, 'Entreprise');
 
             // Sections
             document.getElementById('contexteContent').textContent = record.Contexte || '-';
