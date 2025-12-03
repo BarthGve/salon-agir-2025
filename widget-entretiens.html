@@ -38,10 +38,19 @@
         .fr-tabs__panel {
             padding-top: 1.5rem;
         }
+        /* Fix hauteur des onglets pour s'adapter au contenu */
+        .fr-tabs {
+            height: auto !important;
+        }
         .fr-tabs__panel--selected {
             height: auto !important;
             max-height: none !important;
             overflow: visible !important;
+            padding-bottom: 2rem;
+        }
+        .company-card,
+        .participants-grid {
+            padding-bottom: 1rem;
         }
         .company-card {
             display: grid;
