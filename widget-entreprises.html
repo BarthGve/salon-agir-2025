@@ -1019,14 +1019,15 @@
                 }));
             }
 
-            const clientsData = await fetchGristTable('Table2');
+            const clientsData = await fetchGristTable('Table6');
             if (clientsData.length > 0) {
                 clients = clientsData.map(r => ({
                     entreprise: r.Entreprise,
                     nom: r.NomClient || '',
                     secteur: r.Secteur || '',
                     projet: r.TypeProjet || '',
-                    annee: r.Annee || ''
+                    annee: r.Annee || '',
+                    domaine: r.Domaine || ''
                 }));
             }
 
@@ -1179,7 +1180,12 @@
             });
         }
 
-        function getClientLogo(clientName) {
+        function getClientLogo(clientName, clientDomain) {
+            // Si un domaine est fourni directement depuis la base, l'utiliser
+            if (clientDomain && clientDomain.trim()) {
+                return getClearbitLogo(clientDomain.trim());
+            }
+
             const nameLower = clientName.toLowerCase().trim();
             // D'abord chercher dans les logos directs (non Clearbit)
             for (const [key, url] of Object.entries(directLogos)) {
@@ -1323,7 +1329,7 @@
                         </div>
                         <div class="clients-grid">
                             ${companyClients.map(c => {
-                                const logoUrl = getClientLogo(c.nom);
+                                const logoUrl = getClientLogo(c.nom, c.domaine);
                                 return `
                                 <div class="client-card">
                                     <div class="client-logo-wrapper">

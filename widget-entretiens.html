@@ -216,6 +216,17 @@
             background: var(--background-alt-grey);
             border-radius: 8px;
         }
+        /* Liens interlocuteurs cliquables */
+        .interlocuteur-link {
+            color: var(--text-action-high-blue-france);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .interlocuteur-link:hover {
+            text-decoration: underline;
+            color: var(--text-active-blue-france);
+        }
         /* Bouton d'edition */
         .section-header {
             display: flex;
@@ -371,7 +382,7 @@
                         </li>
                         <li role="presentation">
                             <button id="tabpanel-participants" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-participants-panel">
-                                Participants
+                                <span id="tabLabelInterlocuteurs">Interlocuteur</span>
                             </button>
                         </li>
                     </ul>
@@ -379,11 +390,10 @@
                     <!-- Panel Compte Rendu -->
                     <div id="tabpanel-cr-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-cr" tabindex="0">
 
-                        <!-- Participants -->
+                        <!-- Interlocuteurs -->
                         <div class="fr-mb-3w">
                             <p class="fr-text">
-                                <strong>Notre equipe :</strong> <span id="participantsEquipe">-</span><br>
-                                <strong>Interlocuteurs :</strong> <span id="participantsEntreprise">-</span>
+                                <strong id="interlocuteursLabel">Interlocuteur :</strong> <span id="participantsEntreprise">-</span>
                             </p>
                         </div>
 
@@ -531,13 +541,13 @@
                         </div>
                     </div>
 
-                    <!-- Panel Participants -->
+                    <!-- Panel Interlocuteurs -->
                     <div id="tabpanel-participants-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-participants" tabindex="0">
-                        <h2 class="fr-h4 fr-mb-3w">Interlocuteurs de l'entretien</h2>
+                        <h2 class="fr-h4 fr-mb-3w" id="panelTitleInterlocuteurs">Interlocuteur de l'entretien</h2>
                         <div class="participants-grid" id="participantsGrid">
                             <div class="no-participants">
                                 <span class="fr-icon-user-line fr-icon--lg" aria-hidden="true"></span>
-                                <p class="fr-mt-2w fr-text--muted">Aucun participant entreprise pour cet entretien</p>
+                                <p class="fr-mt-2w fr-text--muted">Aucun interlocuteur pour cet entretien</p>
                             </div>
                         </div>
                     </div>
@@ -637,17 +647,29 @@
         // Resoudre les noms des participants depuis leurs IDs
         function resolveParticipantNames(refList, type) {
             const ids = extractRefListIds(refList);
-            if (ids.length === 0) return 'Non renseigne';
+            if (ids.length === 0) return { count: 0, html: 'Non renseigne' };
 
-            const names = ids
+            const filteredParticipants = ids
                 .map(id => participants.find(p => p.id === id))
-                .filter(p => p && (!type || p.type === type))
-                .map(p => {
-                    const nom = [p.prenom, p.nom].filter(Boolean).join(' ');
-                    return p.fonction ? `${nom} (${p.fonction})` : nom;
-                });
+                .filter(p => p && (!type || p.type === type));
 
-            return names.length > 0 ? names.join(', ') : 'Non renseigne';
+            if (filteredParticipants.length === 0) return { count: 0, html: 'Non renseigne' };
+
+            const links = filteredParticipants.map(p => {
+                const nom = [p.prenom, p.nom].filter(Boolean).join(' ');
+                const displayName = p.fonction ? `${nom} (${p.fonction})` : nom;
+                return `<a href="#" class="interlocuteur-link" onclick="navigateToInterlocuteurs(); return false;">${displayName}</a>`;
+            });
+
+            return { count: filteredParticipants.length, html: links.join(', ') };
+        }
+
+        // Naviguer vers l'onglet Interlocuteurs
+        function navigateToInterlocuteurs() {
+            const tabButton = document.getElementById('tabpanel-participants');
+            if (tabButton) {
+                tabButton.click();
+            }
         }
 
         // Charger une table via l'API REST Grist (mode standalone)
@@ -820,9 +842,19 @@
             document.getElementById('badgeDate').textContent = formatDate(record.Date);
             document.getElementById('titreEntretien').textContent = 'Entretien avec ' + entrepriseNom;
 
-            // Participants (resolus depuis RefList)
-            document.getElementById('participantsEquipe').textContent = resolveParticipantNames(record.Participants_Equipe, 'Equipe');
-            document.getElementById('participantsEntreprise').textContent = resolveParticipantNames(record.Participants_Entreprise, 'Entreprise');
+            // Interlocuteurs (resolus depuis RefList) avec liens cliquables
+            const interlocuteurs = resolveParticipantNames(record.Participants_Entreprise, 'Entreprise');
+            document.getElementById('participantsEntreprise').innerHTML = interlocuteurs.html;
+
+            // Gestion singulier/pluriel pour "Interlocuteur(s)"
+            const isPlural = interlocuteurs.count > 1;
+            const labelText = isPlural ? 'Interlocuteurs :' : 'Interlocuteur :';
+            const tabText = isPlural ? 'Interlocuteurs' : 'Interlocuteur';
+            const panelTitleText = isPlural ? 'Interlocuteurs de l\'entretien' : 'Interlocuteur de l\'entretien';
+
+            document.getElementById('interlocuteursLabel').textContent = labelText;
+            document.getElementById('tabLabelInterlocuteurs').textContent = tabText;
+            document.getElementById('panelTitleInterlocuteurs').textContent = panelTitleText;
 
             // Sections (innerHTML pour supporter le formatage HTML)
             document.getElementById('contexteContent').innerHTML = record.Contexte || '-';
@@ -924,7 +956,7 @@
                 grid.innerHTML = `
                     <div class="no-participants">
                         <span class="fr-icon-user-line fr-icon--lg" aria-hidden="true"></span>
-                        <p class="fr-mt-2w fr-text--muted">Aucun participant entreprise pour cet entretien</p>
+                        <p class="fr-mt-2w fr-text--muted">Aucun interlocuteur pour cet entretien</p>
                     </div>
                 `;
                 return;
@@ -939,7 +971,7 @@
                 grid.innerHTML = `
                     <div class="no-participants">
                         <span class="fr-icon-user-line fr-icon--lg" aria-hidden="true"></span>
-                        <p class="fr-mt-2w fr-text--muted">Aucun participant entreprise pour cet entretien</p>
+                        <p class="fr-mt-2w fr-text--muted">Aucun interlocuteur pour cet entretien</p>
                     </div>
                 `;
                 return;
