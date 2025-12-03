@@ -505,64 +505,76 @@
             color: var(--accent);
         }
 
-        /* Client Logos Grid */
+        /* Client Logos Grid - 4 cards par ligne */
         .clients-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .clients-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .clients-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .client-card {
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: var(--radius-sm);
-            padding: 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-md);
+            padding: 20px 16px;
             text-align: center;
             transition: var(--transition-fast);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
         .client-card:hover {
-            background: rgba(255, 255, 255, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
         }
 
         .client-logo-wrapper {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 10px;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: white;
             border-radius: var(--radius-sm);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             overflow: hidden;
         }
 
         .client-logo-wrapper img {
-            max-width: 42px;
-            max-height: 42px;
+            max-width: 48px;
+            max-height: 48px;
             object-fit: contain;
         }
 
         .client-logo-wrapper .client-initials {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--text-tertiary);
         }
 
         .client-name {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .client-project {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-tertiary);
-            line-height: 1.3;
+            line-height: 1.4;
         }
 
         /* Investor Items */
@@ -930,9 +942,10 @@
             'chaps': 'https://www.chapsvision.com/wp-content/uploads/2025/10/LogoChaps.png',
         };
 
-        // Fonction pour obtenir le logo via Clearbit
-        function getClearbitLogo(domain) {
-            return `https://logo.clearbit.com/${domain}`;
+        // Fonction pour obtenir le logo via logo.dev API
+        const LOGO_DEV_TOKEN = 'pk_X-1ZO13GSgeOoUrIuJ6GMQ';
+        function getLogoDev(domain) {
+            return `https://img.logo.dev/${domain}?token=${LOGO_DEV_TOKEN}&size=128&format=png`;
         }
 
         // Config Grist - API REST publique
@@ -1181,22 +1194,22 @@
         }
 
         function getClientLogo(clientName, clientDomain) {
-            // Si un domaine est fourni directement depuis la base, l'utiliser
+            // Si un domaine est fourni directement depuis la base, l'utiliser avec logo.dev
             if (clientDomain && clientDomain.trim()) {
-                return getClearbitLogo(clientDomain.trim());
+                return getLogoDev(clientDomain.trim());
             }
 
             const nameLower = clientName.toLowerCase().trim();
-            // D'abord chercher dans les logos directs (non Clearbit)
+            // D'abord chercher dans les logos directs (URLs spécifiques)
             for (const [key, url] of Object.entries(directLogos)) {
                 if (nameLower.includes(key) || key.includes(nameLower)) {
                     return url;
                 }
             }
-            // Sinon chercher dans le mapping des domaines Clearbit
+            // Sinon chercher dans le mapping des domaines
             for (const [key, domain] of Object.entries(clientDomains)) {
                 if (nameLower.includes(key) || key.includes(nameLower)) {
-                    return getClearbitLogo(domain);
+                    return getLogoDev(domain);
                 }
             }
             return null;
@@ -1232,11 +1245,11 @@
             if (company.logoURL && !company.logoURL.includes('favicon')) {
                 return company.logoURL;
             }
-            // Sinon, utiliser Clearbit avec le domaine du site web
+            // Sinon, utiliser logo.dev avec le domaine du site web
             if (company.siteWeb) {
                 const domain = extractDomain(company.siteWeb);
                 if (domain) {
-                    return getClearbitLogo(domain);
+                    return getLogoDev(domain);
                 }
             }
             return null;
